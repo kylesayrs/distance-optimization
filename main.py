@@ -84,9 +84,27 @@ class SimpleOptimizer():
         point.position -= gradient * self._learning_rate
         self.total_steps += 1
 
+def numpy_softmax(x: numpy.ndarray, axis: int = 0):
+    """
+    :param x: array containing values to be softmaxed
+    :param axis: axis across which to perform softmax
+    :return: x with values across axis softmaxed
+    """
+    x_max = numpy.max(x, axis=axis, keepdims=True)
+    e_x = numpy.exp(x - x_max)
+    e_x_sum = numpy.sum(e_x, axis=axis, keepdims=True)
+    softmax_x = e_x / e_x_sum
+    return softmax_x
+
+# TODO temperature
 def choose_point_to_optimize(loss):
-    max_loss_index = numpy.argmax(loss.calc_point_losses())
-    return points[max_loss_index]
+    point_losses = loss.calc_point_losses()
+    p = numpy_softmax(numpy.array(point_losses) / 150)
+
+    choice_loss = numpy.random.choice(point_losses, p=p)
+    point_index = point_losses.index(choice_loss)
+
+    return points[point_index]
 
 def validate_points(points):
     num_points = len(points)
