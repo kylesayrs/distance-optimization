@@ -1,66 +1,111 @@
 import numpy
 
-"""
-E = (D - t) ^ 2
-dE/dx = 2(D - t) * (dD/dx)
-dD/dx = (1/d)(x2 - x1)
-
-dE/dx = ((D - t) / D) * (x2 - x1)
-"""
-
-num_dimensions = 1
-learning_rate = 0.01
-
-unoptimizable_point_indexes = [1]
-
 class Point():
-    def __init__(self, position, target_distances, can_optimize=True):
+    def __init__(self, position, target_distances):
         self.position = numpy.array(position, dtype=numpy.float32)
         self.target_distances = numpy.array(target_distances)
-        self.can_optimize = can_optimize
 
-points = [
-    Point([-1, 0], [None, 0]),
-    Point([1, 0], [None, None], can_optimize=False),
-]
+    def __repr__(self):
+        return str(self)
 
-def calc_error(point_position, target_distance):
-    pass
+    def __str__(self):
+        return f"Point {tuple(self.position)}"
 
-for point_i, point in enumerate(points):
-    other_point_positions = [point.position for point in points]
-    other_point_positions = numpy.delete(other_point_positions, point_i, axis=0)
-    print(other_point_positions)
+class MSELoss():
+    def __init__(self, points):
+        self._points = points
 
-    d = [numpy.linalg.norm(pos - point.position) for pos in other_point_positions]
-    print(d)
+    def calc_total_loss(self, weighted=False):
+        if weighted:
+            return numpy.average(
+                self.calc_point_losses(),
+                weights=[
+                    numpy.count_nonzero(point.target_distances is not None)
+                    for point in self._points
+                ])
+        else:
+            return numpy.mean(self.calc_point_losses())
 
-    target_distances = point.target_distances.copy()
-    target_distances = numpy.delete(target_distances, point_i, axis=0)
-    print(target_distances)
+    def calc_point_losses(self):
+        return [self.calc_loss(point) for point in self._points]
 
-    gradient = [
-        (numpy.linalg.norm(point.position - target_point_position) - target_distances[target_point_i]) / numpy.linalg.norm(point.position - target_point_position) * (point.position - target_point_position)
-        for target_point_i, target_point_position in enumerate(other_point_positions)
+    def calc_loss(self, point) -> float:
+        losses = []
+        for target_point, target_distance in zip(self._points, point.target_distances):
+            if target_distance is None: continue
+
+            actual_distance = numpy.linalg.norm(point.position - target_point.position)
+
+            loss = (actual_distance - target_distance) ** 2
+            losses.append(loss)
+
+        if losses:
+            return numpy.mean(losses)
+        else:
+            return 0.0
+
+    def calc_gradient(self, point):
+        """
+        E = (D - t) ^ 2
+        dE/dx = 2(D - t) * (dD/dx)
+        dD/dx = (1/d)(x2 - x1)
+
+        dE/dx = 2 * ((D - t) / D) * (x2 - x1)
+        """
+        point_positions = [_point.position for _point in self._points]
+        target_gradients = []
+        for target_point, target_distance in zip(self._points, point.target_distances):
+            if target_distance is None: continue
+
+            actual_distance = numpy.linalg.norm(point.position - target_point.position)
+
+            target_gradient = (actual_distance - target_distance) / actual_distance * (point.position - target_point.position)
+            target_gradients.append(target_gradient)
+
+        return numpy.average(target_gradients, axis=0)
+
+class SimpleOptimizer():
+    def __init__(self, learning_rate=0.01):
+        self._learning_rate = learning_rate
+
+    def step(self, point, gradient):
+        point.position -= gradient * self._learning_rate
+
+def choose_point_to_optimize(loss):
+    max_loss_index = numpy.argmax(loss.calc_point_losses())
+    return points[max_loss_index]
+
+def validate_points(points):
+    num_points = len(points)
+
+    if num_points <= 0:
+        raise ValueError("No points to optimize")
+
+    for point in points:
+        # TODO: Check position dimensions match
+
+        if len(point.target_distances) != (num_points):
+            raise ValueError("TODO")
+
+if __name__ == "__main__":
+    minimum_loss = 0.000001
+    points = [
+        Point([-1], [None, None, 0]),
+        Point([7], [None, None, 0]),
+        Point([1], [None, None, None]),
     ]
-    print(gradient)
-    gradient = numpy.average(gradient, axis=0)
-    print(gradient)
+    validate_points(points)
 
-    print(point.position)
-    point.position -= gradient * learning_rate
-    print(point.position)
+    loss = MSELoss(points)
+    optimizer = SimpleOptimizer(learning_rate=0.1)
 
-    break
+    total_loss = loss.calc_total_loss()
+    while total_loss > minimum_loss:
+        point = choose_point_to_optimize(loss)
 
-"""
-    point_target_distances = target_distances[point_i]
+        gradient = loss.calc_gradient(point)
+        optimizer.step(point, gradient)
 
-    gradient = numpy.mean([])
+        total_loss = loss.calc_total_loss()
 
-
-    for dim in range(num_dimensions):
-
-        for target in target_distances[]
-            gradient =
-"""
+        print(f"points: {points} | loss: {total_loss:0.2f}")
