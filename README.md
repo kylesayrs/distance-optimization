@@ -1,5 +1,5 @@
 # distance-optimization
-Implements iterative point movement
+Given a list of points and target distances between them, this algorithm calculates a gradient with respect to MSE loss and iteratively moves points closer to their optimal positions. The next point to optimize is decided stochastically and is weighted towards points with a large error value.
 
 <img src="assets/resorts_hotels_218.34.png" alt="Sample Results" width="640" height="480px" />
 

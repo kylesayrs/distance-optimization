@@ -112,12 +112,22 @@ def validate_points(points):
     if num_points <= 0:
         raise ValueError("No points to optimize")
 
-    for point in points:
-        pass
-        # TODO: Check position dimensions match
+    num_dims = len(points[0].position)
 
-        #if len(point.target_distances) != (num_points):
-        #    raise ValueError("TODO")
+    for point in points:
+        if len(point.position) != num_dims:
+            raise ValueError(
+                "All point positions must have the name number of dimensions"
+            )
+
+        if (
+            point.target_distances is not None
+            and len(point.target_distances) != (num_points)
+        ):
+            raise ValueError(
+                "point target_distances must have length equal to the number "
+                "of points"
+            )
 
 def get_random_position():
     return numpy.random.random_sample((2, )) * 500
@@ -125,7 +135,9 @@ def get_random_position():
 def _negate_values(values, max_value=200):
     return [200 - value for value in values]
 
-def optimize_points(points, learning_rate=0.5, max_steps=1000, minimum_loss=0.0):
+def optimize_points(
+    points, learning_rate=0.5, max_steps=1000, minimum_loss=0.0, verbose=False
+):
     loss = MSELoss(points)
     optimizer = SimpleOptimizer(learning_rate=learning_rate)
 
@@ -133,7 +145,11 @@ def optimize_points(points, learning_rate=0.5, max_steps=1000, minimum_loss=0.0)
     while total_loss > minimum_loss and optimizer.total_steps <= max_steps:
         point = choose_point_to_optimize(loss)
         point_loss = loss.calc_loss(point)
-        print(f"point: {point} | loss: {point_loss:02f} | total_loss: {total_loss:0.2f}")
+        if verbose:
+            print(
+                f"point: {point} | loss: {point_loss:02f} | "
+                f"total_loss: {total_loss:0.2f}"
+            )
 
         gradient = loss.calc_gradient(point)
         optimizer.step(point, gradient)
@@ -141,7 +157,8 @@ def optimize_points(points, learning_rate=0.5, max_steps=1000, minimum_loss=0.0)
         point_loss = loss.calc_loss(point)
         total_loss = loss.calc_total_loss()
 
-        print(f"point: {point} | loss: {point_loss:0.2f} | total_loss: {total_loss:0.2f}")
+        if verbose:
+            print(f"point: {point} | loss: {point_loss:0.2f} | total_loss: {total_loss:0.2f}")
 
     return points
 
@@ -155,10 +172,13 @@ def plot_points(points):
     plt.show()
 
 if __name__ == "__main__":
-    minimum_loss = 0.0
-    max_steps = 1000
-    learning_rate = 0.5
-    points = [
+    args = {
+        "minimum_loss": 0.0,
+        "max_steps": 1000,
+        "learning_rate": 0.5,
+        "verbose": True,
+    }
+    points = [  # TODO: ingest graph format
         Point([None] * 6 + _negate_values([136, 74, 30, 156, 72, 109, 42, 57]), name="Jumbo Kingdom"),
         Point([None] * 6 + _negate_values([75, 88, 22, 70, 106, 118, 42, 62]), name="World's Fair"),
         Point([None] * 6 + _negate_values([67, 103, 30, 83, 109, 78, 48, 43]), name="Jumbo Studios"),
@@ -178,11 +198,6 @@ if __name__ == "__main__":
 
     validate_points(points)
 
-    optimize_points(
-        points,
-        learning_rate=learning_rate,
-        max_steps=max_steps,
-        minimum_loss=minimum_loss
-    )
+    optimize_points(points, **args)
 
     plot_points(points)
