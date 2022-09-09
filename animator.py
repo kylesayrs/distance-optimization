@@ -1,3 +1,5 @@
+from typing import List
+
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
@@ -23,7 +25,7 @@ class Animator():
 
         return (self._ax, self.scatter_plot)
 
-    def _animate(self, _frame_i):
+    def _animate(self, _frame_i: int):
         offsets = [point.position for point in self._points]
         self.scatter_plot.set_offsets(offsets)
 
@@ -37,7 +39,7 @@ class Animator():
         return self._points
 
     @points.setter
-    def points(self, points):
+    def points(self, points: List[Point]):
         self._points = points
 
     def show_animation(self):
@@ -50,12 +52,3 @@ class Animator():
             save_count=50
         )
         plt.show()
-
-def plot_points(points):
-    xs = [point.position[0] for point in points]
-    ys = [point.position[1] for point in points]
-    plt.scatter(xs, ys, s=100)
-    for point in points:
-        plt.text(*point.position, point.name)
-
-    plt.show()

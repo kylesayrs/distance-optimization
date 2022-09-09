@@ -6,33 +6,39 @@ import threading
 
 from models import Point
 from loss import MSELoss
-from optimizer import SimpleOptimizer
+from optimizer import SGD
 from animator import Animator
 from callback import Callback
-from helpers import validate_points, choose_point_to_optimize
+from helpers import validate_points, choose_point_to_optimize, plot_points, plot_loss
 
 parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument("--minimum_loss", default=0.0)
-parser.add_argument("--max_steps", default=1000)
-parser.add_argument("--learning_rate", default=0.5)
-parser.add_argument("--temperature", default=1500)
-parser.add_argument("--verbose", default=True)
-parser.add_argument("--animate", default=True)
+parser.add_argument("--minimum_loss", type=float, default=0.0)
+parser.add_argument("--max_steps", type=int, default=1000)
+parser.add_argument("--learning_rate", type=float, default=0.03)
+parser.add_argument("--momentum", type=float, default=0.99)
+parser.add_argument("--initial_temperature", type=float, default=500.0)
+parser.add_argument("--change_temperature", type=float, default=-0.007)
+parser.add_argument("--verbose", type=bool, default=True)
+parser.add_argument("--animate", type=bool, default=True)
 
-def _negate_values(values, max_value=200):
+def _negate_values(values: List[float], max_value: int = 200):
     return [200 - value for value in values]
 
 def optimize_points(
     points: List[Point],
     learning_rate: float = 0.5,
-    max_steps: int = 1000,
+    momentum: float = 0.0,
+    max_steps: int = 5000,
     minimum_loss: float = 0.0,
-    temperature: float = 150.0,
+    initial_temperature: float = 150.0,
+    change_temperature: float = -1,
     callback: Optional[Callback] = None,
+    **kwargs,
 ):
     loss = MSELoss(points)
-    optimizer = SimpleOptimizer(learning_rate=learning_rate)
+    optimizer = SGD(learning_rate=learning_rate, momentum=momentum)
 
+    temperature = initial_temperature
     total_loss = loss.calc_total_loss()
     while total_loss > minimum_loss and optimizer.total_steps <= max_steps:
         point = choose_point_to_optimize(points, loss, temperature)
@@ -44,8 +50,17 @@ def optimize_points(
         point_loss = loss.calc_loss(point)
         total_loss = loss.calc_total_loss()
 
+        temperature += change_temperature
+
         if callback:
-            callback(points, point, point_loss, total_loss)
+            callback(
+                optimizer.total_steps,
+                points,
+                point,
+                point_loss,
+                total_loss,
+                temperature
+            )
 
     return points
 
@@ -72,22 +87,21 @@ if __name__ == "__main__":
 
     validate_points(points)
 
-    animator = Animator(points, 500)
+    animator = Animator(points, 500) if args.animate else None
     callback = Callback(animator=animator, verbose=args.verbose)
 
-    optimize_points_kwargs = {
-        "points": points,
-        "learning_rate": args.learning_rate,
-        "max_steps": args.max_steps,
-        "minimum_loss": args.minimum_loss,
-        "temperature": args.temperature,
-        "callback": callback,
-    }
-
-    optimize_thread = threading.Thread(target=optimize_points, kwargs=optimize_points_kwargs)
+    optimize_kwargs = vars(args)
+    optimize_kwargs.update({"callback": callback})
+    optimize_thread = threading.Thread(
+        target=optimize_points,
+        args=(points, ),
+        kwargs=optimize_kwargs
+    )
 
     optimize_thread.start()
-    animator.show_animation()
+    if animator:
+        animator.show_animation()
     optimize_thread.join()
 
-    #plot_points(points)
+    plot_points(points)
+    plot_loss(callback.losses)

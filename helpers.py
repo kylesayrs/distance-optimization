@@ -1,6 +1,7 @@
 from typing import List
 
 import numpy
+import matplotlib.pyplot as plt
 
 from models import Point
 from loss import MSELoss
@@ -20,7 +21,7 @@ def numpy_softmax(x: numpy.ndarray, axis: int = 0):
 
 def choose_point_to_optimize(points: List[Point], loss: MSELoss, temperature: int = 150):
     point_losses = loss.calc_point_losses()
-    p = numpy_softmax(numpy.array(point_losses) / temperature)
+    p = numpy_softmax(numpy.array(point_losses) / max(temperature, 1))
 
     choice_loss = numpy.random.choice(point_losses, p=p)
     point_index = point_losses.index(choice_loss)
@@ -50,3 +51,16 @@ def validate_points(points: List[Point]):
                 "point target_distances must have length equal to the number "
                 "of points"
             )
+
+def plot_points(points: List[Point]):
+    xs = [point.position[0] for point in points]
+    ys = [point.position[1] for point in points]
+    plt.scatter(xs, ys, s=100)
+    for point in points:
+        plt.text(*point.position, point.name)
+
+    plt.show()
+
+def plot_loss(losses: List[float]):
+    plt.plot(losses)
+    plt.show()
