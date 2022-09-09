@@ -9,7 +9,8 @@ class Point():
         return str(self)
 
     def __str__(self):
-        return f"Point {tuple(self.position)}"
+        positions_string = ", ".join([f"{pos:0.2f}" for pos in self.position])
+        return f"Point ({positions_string})"
 
 class MSELoss():
     def __init__(self, points):
