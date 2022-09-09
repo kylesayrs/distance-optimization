@@ -95,10 +95,11 @@ if __name__ == "__main__":
         Point([7], [None, None, 0]),
         Point([1], [None, None, None]),
     ]
-    validate_points(points)
 
     loss = MSELoss(points)
-    optimizer = SimpleOptimizer(learning_rate=0.1)
+    optimizer = SimpleOptimizer(learning_rate=0.5)
+
+    validate_points(points)
 
     total_loss = loss.calc_total_loss()
     while total_loss > minimum_loss:
