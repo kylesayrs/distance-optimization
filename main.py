@@ -21,7 +21,8 @@ parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument("--minimum_loss", default=0.0)
 parser.add_argument("--max_steps", default=1000)
 parser.add_argument("--learning_rate", default=0.5)
-parser.add_argument("--verbose", default=False)
+parser.add_argument("--temperature", default=1500)
+parser.add_argument("--verbose", default=True)
 parser.add_argument("--animate", default=True)
 
 class Point():
@@ -169,28 +170,27 @@ def validate_points(points):
                 "of points"
             )
 
-class Callback():
-    def __init__(self, points: List[Point], ax, animate: bool = False, verbose: bool = False):
+class Animator():
+    def __init__(self, points, expected_range):
         self._points = points
-        self._animate = animate
-        self._verbose = verbose
-        self._ax = ax
-        self._texts = []
+        self._expected_range = expected_range
 
-        if self._animate:
-            self.init_animation(ax)
+        self._fig, self._ax = plt.subplots()
 
-    def init_animation(self, ax):
-        self.animation_frames = []
-        self._ax.set_xlim(-1000, 1000)
-        self._ax.set_ylim(-1000, 1000)
+    def _init_animation(self):
+        self._ax.set_xlim(-500, 500)
+        self._ax.set_ylim(-500, 500)
 
-        self.scatter_plot = ax.scatter([], [], s=100)
+        self.scatter_plot = self._ax.scatter([], [], s=100)
 
-        for point in self._points:
-            self._texts.append(self._ax.annotate(point.name, point.position))
+        self._texts = [
+            self._ax.annotate(point.name, point.position)
+            for point in self._points
+        ]
 
-    def animate(self, _frame_i: int):
+        return (self._ax, self.scatter_plot)
+
+    def _animate(self, _frame_i):
         offsets = numpy.array([point.position for point in self._points])
         self.scatter_plot.set_offsets(offsets)
 
@@ -199,6 +199,34 @@ class Callback():
 
         return (self._ax, self.scatter_plot)
 
+    @property
+    def points(self):
+        return self._points
+
+    @points.setter
+    def points(self, points):
+        self._points = points
+
+    def show_animation(self):
+        anim = animation.FuncAnimation(
+            self._fig,
+            self._animate,
+            init_func=self._init_animation,
+            interval=20,
+            blit=True,
+            save_count=50
+        )
+        plt.show()
+
+class Callback():
+    def __init__(self,
+        animator: Optional[Animator] = None,
+        verbose: bool = False,
+    ):
+        self._animator = animator
+        self._verbose = verbose
+
+
     def __call__(
         self,
         points: List[Point],
@@ -206,13 +234,14 @@ class Callback():
         point_loss: float,
         total_loss: float
     ):
-        self._points = points
-
         if self._verbose:
             print(
                 f"point: {point} | loss: {point_loss:0.2f} | "
                 f"total_loss: {total_loss:0.2f}"
             )
+
+        if self._animator:
+            self._animator.points = points
 
 def _negate_values(values, max_value=200):
     return [200 - value for value in values]
@@ -276,34 +305,24 @@ if __name__ == "__main__":
 
     validate_points(points)
 
-    fig, ax = plt.subplots()
-    callback = Callback(points, ax, animate=args.animate, verbose=args.verbose)
+    animator = Animator(points, 500)
+    callback = Callback(animator=animator, verbose=args.verbose)
 
-    ani = animation.FuncAnimation(fig, callback.animate, interval=20, blit=True, save_count=50)
+    optimize_points_kwargs = {
+        "points": points,
+        "learning_rate": args.learning_rate,
+        "max_steps": args.max_steps,
+        "minimum_loss": args.minimum_loss,
+        "temperature": args.temperature,
+        "callback": callback,
+    }
 
-    thread = threading.Thread(target=optimize_points, args=(
-        points,
-        args.learning_rate,
-        args.max_steps,
-        args.minimum_loss,
-        150,
-        callback,
-    ))
+    optimize_thread = threading.Thread(target=optimize_points, kwargs=optimize_points_kwargs)
 
-    thread.start()
+    optimize_thread.start()
 
-    plt.show()
+    animator.show_animation()
 
-    """
-    optimize_points(
-        points,
-        learning_rate=args.learning_rate,
-        max_steps=args.max_steps,
-        minimum_loss=args.minimum_loss,
-        callback=callback,
-    )
-    """
-
-    thread.join()
+    optimize_thread.join()
 
     #plot_points(points)
