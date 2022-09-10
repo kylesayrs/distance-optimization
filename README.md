@@ -1,13 +1,44 @@
 # distance-optimization
-Given a list of points and target distances between them, this algorithm calculates a gradient with respect to MSE loss and iteratively moves points closer to their optimal positions. The next point to optimize is decided stochastically and is weighted towards points with a large error value.
+Given a list of points and target distances between them, this algorithm uses gradient descent to find an optimal configuration of points in N-dimensional space. This can be used by urban planners for optimizing building placement or physicists to simulate molecular interactions.
 
-<img src="assets/resorts_hotels_218.34.png" alt="Sample Results" width="640" height="480px" />
+## Methods ##
+### Loss ###
+MSE Loss was calculated with respect to x and y using the following derivation:
+```
+E = (D - t) ^ 2
+dE/dx = 2(D - t) * (dD/dx)
+
+D = ((y2 - y1)^2 + (x2 - yx1)^2) ^ (1/2)
+dD/dx = (1/d)(x2 - x1)
+
+dE/dx = 2 * ((D - t) / D) * (x2 - x1)
+```
+
+### Optimizer ###
+SGD was implemented with momentum. One step is as follows:
+```
+point.position -= gradient * self._learning_rate + self._momentum * self._prev_change
+```
+
+### Simulated Annealing ###
+At each optimization step, the next point to optimize is randomly chosen from the set of all points weighted towards points with larger error. This weighting factor is determined by a "temperature" parameter. Temperature begins at a high value (all points have near equal probabilities of being chosen) and decreases with each optimization step (points with high error are more likely to be chosen).
+
+This method borrows ideas from [simulated annealing](https://en.wikipedia.org/wiki/Simulated_annealing) which aims to mimic how molecules in a cooling metal first create optimal global structures and then local structures as temperature decreases.
+
+## Results ##
+### Tufts Amusement Parks ###
+This is a sample dataset from Tufts' Network Science class. It takes about ~3 runs to find a loss <= `130`.
+
+Local positions
+<img src="assets/amusement_parks_130.png" alt="Sample Results" width="640" height="480px" />
+
+Loss
+<img src="assets/amusement_parks_loss_130.png" alt="Sample Loss" width="640" height="480px" />
 
 ``` python
-minimum_loss = 0.0
-max_steps = 1000
-learning_rate = 0.5
-points = [
+args = parser.parse_args()
+
+points = [  # TODO: ingest graph format
     Point([None] * 6 + _negate_values([136, 74, 30, 156, 72, 109, 42, 57]), name="Jumbo Kingdom"),
     Point([None] * 6 + _negate_values([75, 88, 22, 70, 106, 118, 42, 62]), name="World's Fair"),
     Point([None] * 6 + _negate_values([67, 103, 30, 83, 109, 78, 48, 43]), name="Jumbo Studios"),
@@ -27,40 +58,30 @@ points = [
 
 validate_points(points)
 
-optimize_points(
-    points,
-    learning_rate=learning_rate,
-    max_steps=max_steps,
-    minimum_loss=minimum_loss
+animator = Animator(points, 500) if args.animate else None
+callback = Callback(animator=animator, verbose=args.verbose)
+
+optimize_kwargs = vars(args)
+optimize_kwargs.update({"callback": callback})
+optimize_thread = threading.Thread(
+    target=optimize_points,
+    args=(points, ),
+    kwargs=optimize_kwargs
 )
 
+optimize_thread.start()
+if animator:
+    animator.show_animation()
+optimize_thread.join()
+
 plot_points(points)
+plot_loss(callback.losses)
 ```
 
-```
-point: Point(name="World's Fair", (410.36, 66.82)) | loss: 68520.921083 | total_loss: 25579.05
-point: Point(name="World's Fair", (375.98, 121.62)) | loss: 43549.92 | total_loss: 21417.22
-point: Point(name="Elephant Lodge", (461.35, 79.23)) | loss: 47633.285950 | total_loss: 21417.22
-point: Point(name="Elephant Lodge", (431.25, 122.89)) | loss: 31259.52 | total_loss: 19370.50
-point: Point(name="World's Fair", (375.98, 121.62)) | loss: 44577.617669 | total_loss: 19370.50
-point: Point(name="World's Fair", (349.98, 164.19)) | loss: 29750.54 | total_loss: 16899.32
-point: Point(name="Elephant Lodge", (431.25, 122.89)) | loss: 30006.352409 | total_loss: 16899.32
-point: Point(name="Elephant Lodge", (408.94, 156.03)) | loss: 20710.60 | total_loss: 15737.35
-point: Point(name="World's Fair", (349.98, 164.19)) | loss: 30562.724003 | total_loss: 15737.35
-point: Point(name="World's Fair", (330.38, 197.74)) | loss: 21558.14 | total_loss: 14236.58
-point: Point(name="Mammoth Motel", (472.52, 468.63)) | loss: 23911.757913 | total_loss: 14236.58
-point: Point(name="Mammoth Motel", (439.69, 448.41)) | loss: 15289.84 | total_loss: 13158.85
-point: Point(name="Tusk Hotel", (55.89, 205.41)) | loss: 23631.542479 | total_loss: 13158.85
-...
-point: Point(name="Trunk Inn", (276.12, 286.89)) | loss: 526.46 | total_loss: 218.35
-point: Point(name="Jumbo Golf Course", (268.94, 140.55)) | loss: 283.181844 | total_loss: 218.35
-point: Point(name="Jumbo Golf Course", (268.89, 140.45)) | loss: 283.14 | total_loss: 218.34
-point: Point(name="Trunk Inn", (276.12, 286.89)) | loss: 525.278451 | total_loss: 218.34
-point: Point(name="Trunk Inn", (276.14, 286.88)) | loss: 525.28 | total_loss: 218.34
-point: Point(name="Jumbo Studios", (361.07, 357.63)) | loss: 112.406307 | total_loss: 218.34
-point: Point(name="Jumbo Studios", (361.10, 357.70)) | loss: 112.39 | total_loss: 218.34
-point: Point(name="Jumbo Kingdom", (319.43, 219.89)) | loss: 556.761713 | total_loss: 218.34
-point: Point(name="Jumbo Kingdom", (319.43, 219.86)) | loss: 556.76 | total_loss: 218.34
-point: Point(name="Trunk Inn", (276.14, 286.88)) | loss: 525.441486 | total_loss: 218.34
-point: Point(name="Trunk Inn", (276.15, 286.87)) | loss: 525.44 | total_loss: 218.34
-```
+Parameters
+minimum_loss | 0.1
+minimum_loss | 30000
+learning_rate | 0.3
+learning_rate | 0.99
+learning_rate | 500.0
+change_temperature | -0.007

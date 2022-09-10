@@ -19,16 +19,6 @@ def numpy_softmax(x: numpy.ndarray, axis: int = 0):
     return softmax_x
 
 
-def choose_point_to_optimize(points: List[Point], loss: MSELoss, temperature: int = 150):
-    point_losses = loss.calc_point_losses()
-    p = numpy_softmax(numpy.array(point_losses) / max(temperature, 1))
-
-    choice_loss = numpy.random.choice(point_losses, p=p)
-    point_index = point_losses.index(choice_loss)
-
-    return points[point_index]
-
-
 def validate_points(points: List[Point]):
     num_points = len(points)
 
@@ -64,3 +54,6 @@ def plot_points(points: List[Point]):
 def plot_loss(losses: List[float]):
     plt.plot(losses)
     plt.show()
+
+def negate_values(values: List[float], max_value: int = 200):
+    return [200 - value for value in values]

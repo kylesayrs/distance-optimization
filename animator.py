@@ -1,7 +1,7 @@
 from typing import List
 
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
+from matplotlib.animation import FuncAnimation, PillowWriter
 
 from models import Point
 
@@ -43,7 +43,7 @@ class Animator():
         self._points = points
 
     def show_animation(self):
-        anim = animation.FuncAnimation(
+        animation = FuncAnimation(
             self._fig,
             self._animate,
             init_func=self._init_animation,
@@ -52,3 +52,5 @@ class Animator():
             save_count=50
         )
         plt.show()
+
+        #animation.save("optimization.gif", dpi=300, writer=PillowWriter(fps=25))
