@@ -1,6 +1,8 @@
 # distance-optimization #
 Given a list of points and target distances between them, this algorithm uses gradient descent to find an optimal configuration of points in N-dimensional space. This can be used by urban planners for optimizing building placement or physicists to simulate molecular interactions.
 
+This is just a fun project to learn more about optimization and applications of gradient descent.
+
 ## Methods ##
 ### Loss ###
 MSE Loss was calculated with respect to x and y using the following derivation:
