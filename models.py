@@ -15,13 +15,11 @@ class Point():
         if position:
             self.position = numpy.array(position, dtype=numpy.float32)
         else:
-            self.position = self.initialize_position()
+            self.position = None
 
     def initialize_position(self, loc=0.0, scale=1, num_dims=2):
         position = numpy.random.normal(loc=loc, scale=scale, size=(num_dims, ))
         self.position = position
-        
-        return position
 
     def __repr__(self):
         return str(self)

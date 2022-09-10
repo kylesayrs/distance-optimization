@@ -59,4 +59,4 @@ def negate_values(values: List[float], max_value: int = 200):
     return [max_value - value for value in values]
 
 def initialize_point_positions(points: List[Point]):
-    for point in points
+    [point.initialize_position() for point in points]

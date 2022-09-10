@@ -10,6 +10,7 @@ from optimizer import SGD
 from animator import Animator
 from callback import Callback
 from helpers import (
+    initialize_point_positions,
     validate_points,
     numpy_softmax,
     negate_values,
@@ -24,7 +25,7 @@ parser.add_argument("--learning_rate", type=float, default=0.03)
 parser.add_argument("--momentum", type=float, default=0.99)
 parser.add_argument("--initial_temperature", type=float, default=500.0)
 parser.add_argument("--change_temperature", type=float, default=-0.007)
-parser.add_argument("--expected_range", type=float, default=1)
+parser.add_argument("--expected_range", type=float, default=500)
 parser.add_argument("--verbose", type=bool, default=True)
 parser.add_argument("--animate", type=bool, default=True)
 
@@ -84,6 +85,7 @@ if __name__ == "__main__":
 
     points = []
 
+    initialize_point_positions(points)
     validate_points(points)
 
     animator = Animator(points, expected_range=args.expected_range)
