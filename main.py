@@ -24,6 +24,7 @@ parser.add_argument("--learning_rate", type=float, default=0.03)
 parser.add_argument("--momentum", type=float, default=0.99)
 parser.add_argument("--initial_temperature", type=float, default=500.0)
 parser.add_argument("--change_temperature", type=float, default=-0.007)
+parser.add_argument("--expected_range", type=float, default=1)
 parser.add_argument("--verbose", type=bool, default=True)
 parser.add_argument("--animate", type=bool, default=True)
 
@@ -44,6 +45,7 @@ def optimize_points(
     minimum_loss: float = 0.0,
     initial_temperature: float = 150.0,
     change_temperature: float = -1,
+    expected_range: float = 1,
     callback: Optional[Callback] = None,
     **kwargs,
 ):
@@ -84,7 +86,7 @@ if __name__ == "__main__":
 
     validate_points(points)
 
-    animator = Animator(points, 500) if args.animate else None
+    animator = Animator(points, expected_range=args.expected_range)
     callback = Callback(animator=animator, verbose=args.verbose)
 
     optimize_kwargs = vars(args)

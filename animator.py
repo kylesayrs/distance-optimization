@@ -6,7 +6,7 @@ from matplotlib.animation import FuncAnimation, PillowWriter
 from models import Point
 
 class Animator():
-    def __init__(self, points: Point, expected_range: int = 500):
+    def __init__(self, points: List[Point], expected_range: int = 0.5):
         self._points = points
         self._expected_range = expected_range
 

@@ -84,7 +84,7 @@ plot_loss(callback.losses)
 |-|-|
 | minimum_loss | 0.0 |
 | max_steps | 30000 |
-| learning_rate | 0.3 |
+| learning_rate | 0.03 |
 | momentum | 0.99 |
 | initial_temperature | 500.0 |
 | change_temperature | -0.007 |

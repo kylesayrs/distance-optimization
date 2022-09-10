@@ -25,7 +25,7 @@ class Callback():
     ):
         if self._verbose:
             print(
-                f"steps: {steps} | total_loss: {total_loss:0.2f} | "
+                f"steps: {steps} | total_loss: {total_loss:0.4f} | "
                 f"temp: {temperature:0.1f} | point: {point}"
             )
 

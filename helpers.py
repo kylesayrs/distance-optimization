@@ -56,4 +56,7 @@ def plot_loss(losses: List[float]):
     plt.show()
 
 def negate_values(values: List[float], max_value: int = 200):
-    return [200 - value for value in values]
+    return [max_value - value for value in values]
+
+def initialize_point_positions(points: List[Point]):
+    for point in points
