@@ -26,6 +26,64 @@ At each optimization step, the next point to optimize is randomly chosen from th
 This method borrows ideas from [simulated annealing](https://en.wikipedia.org/wiki/Simulated_annealing) which aims to mimic how molecules in a cooling metal first create optimal global structures and then local structures as temperature decreases.
 
 ## Results ##
+### Massachusetts Cities/Towns ###
+I collected distance information about cities and towns in Massachusetts from Google Maps. I assume that the Earth is flat for this local area (triangles add up to 180º). I was able to achieve a loss of 0.0287 after 30000 steps.
+
+Local positions
+
+<img src="assets/massachusetts_0.0287.png" alt="Sample Results" width="640" height="480px" title="Local positions"/>
+
+Ground truth
+
+<img src="assets/massachusetts_truth.png" alt="Sample Results" width="640" height="480px" title="Local positions"/>
+
+Loss
+
+<img src="assets/massachusetts_loss_0.0287.png" alt="Sample Loss" width="640" height="480px" title="Loss"/>
+
+``` python
+points = [
+    Point([None, 38.73, 13.95, 80.31, 80.41, 74.41, 112.11, 34.54], name="Boston"),
+    Point([38.73, None, 49.44, 41.51, 41.93, 37.44, 74.77, 61.90], name="Worcester"),
+    Point([13.95, 49.44, None, 91.10, 90.52, 83.36, 120.07, 40.59], name="Salem"),
+    Point([80.31, 41.51, 91.10, None, 7.36, 19.00, 41.26, 98.83], name="Springfield"),
+    Point([80.41, 41.93, 90.52, 7.36, None, 12.84, 36.35, 101.19], name="Holyoke"),
+    Point([74.41, 37.44, 83.36, 19.00, 12.84, None, 37.66, 98.82], name="Amherst"),
+    Point([112.11, 74.77, 120.07, 41.26, 36.35, 37.66, None, 135.83], name="Pittsfield"),
+    Point([34.54, 61.90, 40.59, 98.83, 101.19, 98.82, 135.83, None], name="Plymouth"),
+]
+
+validate_points(points)
+
+animator = Animator(points, 500) if args.animate else None
+callback = Callback(animator=animator, verbose=args.verbose)
+
+optimize_kwargs = vars(args)
+optimize_kwargs.update({"callback": callback})
+optimize_thread = threading.Thread(
+    target=optimize_points,
+    args=(points, ),
+    kwargs=optimize_kwargs
+)
+
+optimize_thread.start()
+if animator:
+    animator.show_animation()
+optimize_thread.join()
+
+plot_points(points)
+plot_loss(callback.losses)
+```
+
+| Parameter | value |
+|-|-|
+| minimum_loss | 0.0 |
+| max_steps | 30000 |
+| learning_rate | 0.01 |
+| momentum | 0.99 |
+| initial_temperature | 500.0 |
+| change_temperature | -0.03 |
+
 ### Tufts Amusement Parks ###
 This is a sample dataset from Tufts' Network Science class. It takes about ~3 runs to find a loss <= `130`.
 
@@ -88,61 +146,3 @@ plot_loss(callback.losses)
 | momentum | 0.99 |
 | initial_temperature | 500.0 |
 | change_temperature | -0.007 |
-
-### Massachusetts Cities/Towns ###
-I collected distance information about cities and towns in Massachusetts from Google Maps. I assume that the Earth is flat for this local area (triangles add up to 180º). I was able to achieve a loss of 0.0287 after 30000 steps.
-
-Local positions
-
-<img src="assets/massachusetts_0.0287.png" alt="Sample Results" width="640" height="480px" title="Local positions"/>
-
-Ground truth
-
-<img src="assets/massachusetts_truth.png" alt="Sample Results" width="640" height="480px" title="Local positions"/>
-
-Loss
-
-<img src="assets/massachusetts_loss_0.0287.png" alt="Sample Loss" width="640" height="480px" title="Loss"/>
-
-``` python
-points = [
-    Point([None, 38.73, 13.95, 80.31, 80.41, 74.41, 112.11, 34.54], name="Boston"),
-    Point([38.73, None, 49.44, 41.51, 41.93, 37.44, 74.77, 61.90], name="Worcester"),
-    Point([13.95, 49.44, None, 91.10, 90.52, 83.36, 120.07, 40.59], name="Salem"),
-    Point([80.31, 41.51, 91.10, None, 7.36, 19.00, 41.26, 98.83], name="Springfield"),
-    Point([80.41, 41.93, 90.52, 7.36, None, 12.84, 36.35, 101.19], name="Holyoke"),
-    Point([74.41, 37.44, 83.36, 19.00, 12.84, None, 37.66, 98.82], name="Amherst"),
-    Point([112.11, 74.77, 120.07, 41.26, 36.35, 37.66, None, 135.83], name="Pittsfield"),
-    Point([34.54, 61.90, 40.59, 98.83, 101.19, 98.82, 135.83, None], name="Plymouth"),
-]
-
-validate_points(points)
-
-animator = Animator(points, 500) if args.animate else None
-callback = Callback(animator=animator, verbose=args.verbose)
-
-optimize_kwargs = vars(args)
-optimize_kwargs.update({"callback": callback})
-optimize_thread = threading.Thread(
-    target=optimize_points,
-    args=(points, ),
-    kwargs=optimize_kwargs
-)
-
-optimize_thread.start()
-if animator:
-    animator.show_animation()
-optimize_thread.join()
-
-plot_points(points)
-plot_loss(callback.losses)
-```
-
-| Parameter | value |
-|-|-|
-| minimum_loss | 0.0 |
-| max_steps | 30000 |
-| learning_rate | 0.01 |
-| momentum | 0.99 |
-| initial_temperature | 500.0 |
-| change_temperature | -0.03 |
