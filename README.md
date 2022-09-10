@@ -80,10 +80,11 @@ plot_points(points)
 plot_loss(callback.losses)
 ```
 
-Parameters
-minimum_loss | 0.1
-minimum_loss | 30000
-learning_rate | 0.3
-learning_rate | 0.99
-learning_rate | 500.0
-change_temperature | -0.007
+| Parameter | value |
+|-|-|
+| minimum_loss | 0.1 |
+| minimum_loss | 30000 |
+| learning_rate | 0.3 |
+| learning_rate | 0.99 |
+| learning_rate | 500.0 |
+| change_temperature | -0.007 |
