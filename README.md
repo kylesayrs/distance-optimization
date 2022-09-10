@@ -90,7 +90,7 @@ plot_loss(callback.losses)
 | change_temperature | -0.007 |
 
 ### Massachusetts Cities/Towns ###
-I collected distance information about cities and towns in Massachusetts from Google Maps I assume that the Earth is flat for this local area (triangles add up to 180º). I was able to achieve a loss of 0.0287 after 30000 steps.
+I collected distance information about cities and towns in Massachusetts from Google Maps. I assume that the Earth is flat for this local area (triangles add up to 180º). I was able to achieve a loss of 0.0287 after 30000 steps.
 
 Local positions
 
