@@ -94,7 +94,7 @@ I collected distance information from Google Maps of places is Massachusetts. I 
 
 Local positions
 
-<img src="assets/massachusetts_109.png" alt="Sample Results" width="640" height="480px" title="Local positions"/>
+<img src="assets/massachusetts_0.0287.png" alt="Sample Results" width="640" height="480px" title="Local positions"/>
 
 Ground truth
 
@@ -102,7 +102,7 @@ Ground truth
 
 Loss
 
-<img src="assets/massachusetts_loss_109.png" alt="Sample Loss" width="640" height="480px" title="Loss"/>
+<img src="assets/massachusetts_loss_0.0287.png" alt="Sample Loss" width="640" height="480px" title="Loss"/>
 
 ``` python
 points = [
@@ -141,8 +141,8 @@ plot_loss(callback.losses)
 | Parameter | value |
 |-|-|
 | minimum_loss | 0.0 |
-| max_steps | 15000 |
-| learning_rate | 0.03 |
+| max_steps | 30000 |
+| learning_rate | 0.01 |
 | momentum | 0.99 |
 | initial_temperature | 500.0 |
 | change_temperature | -0.03 |
