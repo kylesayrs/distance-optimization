@@ -30,10 +30,12 @@ This method borrows ideas from [simulated annealing](https://en.wikipedia.org/wi
 This is a sample dataset from Tufts' Network Science class. It takes about ~3 runs to find a loss <= `130`.
 
 Local positions
-<img src="assets/amusement_parks_130.png" alt="Sample Results" width="640" height="480px" />
+
+<img src="assets/amusement_parks_130.png" alt="Sample Results" width="640" height="480px" title="Local positions"/>
 
 Loss
-<img src="assets/amusement_parks_loss_130.png" alt="Sample Loss" width="640" height="480px" />
+
+<img src="assets/amusement_parks_loss_130.png" alt="Sample Loss" width="640" height="480px" title="Loss"/>
 
 ``` python
 args = parser.parse_args()
