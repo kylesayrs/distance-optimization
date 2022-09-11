@@ -1,7 +1,7 @@
 # distance-optimization #
-Given a list of points and target distances between them, this algorithm uses gradient descent to find an optimal configuration of points in N-dimensional space. This can be used by urban planners for optimizing building placement or physicists to simulate molecular interactions.
+Given a list of points and target distances between them, this algorithm uses gradient descent to find an optimal configuration of points in N-dimensional space. This can be used by urban planners for optimizing building placement or roboticists for GPS-like global positioning from one stationary node.
 
-This is just a fun project to learn more about optimization and applications of gradient descent.
+Mostly this is just a fun project to learn more about optimization techniques and applications of gradient descent.
 
 ## Methods ##
 ### Loss ###
@@ -26,6 +26,9 @@ point.position -= gradient * self._learning_rate + self._momentum * self._prev_c
 At each optimization step, the next point to optimize is randomly chosen from the set of all points weighted towards points with larger error. This weighting factor is determined by a "temperature" parameter. Temperature begins at a high value (all points have near equal probabilities of being chosen) and decreases with each optimization step (points with high error are more likely to be chosen).
 
 This method borrows ideas from [simulated annealing](https://en.wikipedia.org/wiki/Simulated_annealing) which aims to mimic how molecules in a cooling metal first create optimal global structures and then local structures as temperature decreases.
+
+## Benchmarks ##
+Benchmarks can be run with `python3 generate_benchmarks.py num_nodes` with the same arguments as `main.py`. This script generates `num_nodes`-many random points and calculates distances between then. These true distances are then used as inputs to the algorithm. This can be used to run generalized experiments.
 
 ## Results ##
 ### Massachusetts Cities/Towns ###
@@ -87,7 +90,7 @@ plot_loss(callback.losses)
 | change_temperature | -0.03 |
 
 ### Tufts Amusement Parks ###
-This is a sample dataset from Tufts' Network Science class. It takes about ~3 runs to find a loss <= `130`.
+This is a sample dataset from Tufts' Network Science class. It takes about ~7 runs to find a loss <= 130.
 
 Local positions
 
