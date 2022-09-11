@@ -59,7 +59,7 @@ def plot_points(
     if out_path:
         figure.savefig(out_path)
     else:
-        figure.show()
+        plt.show()
 
 def plot_loss(
     losses: List[float],
@@ -73,7 +73,7 @@ def plot_loss(
     if out_path:
         figure.savefig(out_path)
     else:
-        figure.show()
+        plt.show()
 
 def negate_values(values: List[float], max_value: int = 200):
     return [max_value - value for value in values]
