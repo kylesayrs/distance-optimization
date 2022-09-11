@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Tuple
 
 import numpy
 import matplotlib.pyplot as plt
@@ -42,21 +42,53 @@ def validate_points(points: List[Point]):
                 "of points"
             )
 
-def plot_points(points: List[Point]):
+def plot_points(
+    points: List[Point],
+    out_path: Optional[str] = None,
+    figsize: Tuple[int, int] = (10, 10),
+):
+    figure, axes = plt.subplots(figsize=figsize)
+    axes.set_aspect(1)
+
     xs = [point.position[0] for point in points]
     ys = [point.position[1] for point in points]
-    plt.scatter(xs, ys, s=100)
+    axes.scatter(xs, ys, s=100)
     for point in points:
-        plt.text(*point.position, point.name)
+        axes.text(*point.position, point.name)
 
-    plt.show()
+    if out_path:
+        figure.savefig(out_path)
+    else:
+        figure.show()
 
-def plot_loss(losses: List[float]):
-    plt.plot(losses)
-    plt.show()
+def plot_loss(
+    losses: List[float],
+    out_path: Optional[str] = None,
+    figsize: Tuple[int, int] = (10, 10),
+):
+    figure, axes = plt.subplots(figsize=figsize)
+
+    axes.plot(losses)
+
+    if out_path:
+        figure.savefig(out_path)
+    else:
+        figure.show()
 
 def negate_values(values: List[float], max_value: int = 200):
     return [max_value - value for value in values]
 
-def initialize_point_positions(points: List[Point]):
-    [point.initialize_position() for point in points]
+def initialize_point_positions(
+    points: List[Point],
+    loc: float = 0.0,
+    expected_range: float = 1.0,
+    num_dims: int = 2
+):
+    [
+        point.initialize_position(
+            loc=loc,
+            scale=expected_range,
+            num_dims=num_dims,
+        )
+        for point in points
+    ]
