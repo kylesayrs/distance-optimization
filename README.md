@@ -1,5 +1,5 @@
 # distance-optimization #
-Given a list of points and target distances between them, this algorithm uses gradient descent to find an optimal configuration of points in N-dimensional space. This can be used by urban planners for optimizing building placement or roboticists for GPS-like global positioning from one stationary node.
+Given a list of points and target distances between them, this algorithm uses gradient descent to find an optimal configuration of points in N-dimensional space. This can be used by urban planners for optimizing building placement or roboticists for relative localization.
 
 Mostly this is just a fun project to learn more about optimization techniques and applications of gradient descent.
 
