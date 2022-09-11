@@ -3,6 +3,8 @@ Given a list of points and target distances between them, this algorithm uses gr
 
 Mostly this is just a fun project to learn more about optimization techniques and applications of gradient descent.
 
+<img src="assets/optimization.gif" alt="Sample Optimization Gif" width="800" height="450px" title="Sample Optimization Gif"/>
+
 ## Methods ##
 ### Loss ###
 MSE Loss was calculated with respect to x and y using the following derivation:
