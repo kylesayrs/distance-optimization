@@ -1,7 +1,7 @@
-# distance-optimization #
+# Distance Optimization #
 Given a list of points and target distances between them, this algorithm uses gradient descent to find an optimal configuration of points in N-dimensional space. This can be used by urban planners for optimizing building placement or roboticists for relative localization.
 
-Mostly this is just a fun project to learn more about optimization techniques and applications of gradient descent.
+NOTE: This can be uniquely solved as a convex problem with margin for error (see [convex_optimization](./convex_optimization/)). The following is an excercise in experimentation with optimal gradient descent.
 
 <img src="assets/optimization.gif" alt="Sample Optimization Gif" width="800" height="450px" title="Sample Optimization Gif"/>
 
