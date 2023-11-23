@@ -18,7 +18,3 @@ Given that this is a made-up dataset, it's not surprising that a feasible soluti
 Solution with margin=0.78
 
 <img src="../assets/amusement_parks_cvx_0.78.png" alt="Sample Results" width="640" height="480px" title="Local positions"/>
-
-This solution is somewhat similar to the solution found via gradient descent
-
-<img src="../assets/amusement_parks_130.png" alt="Sample Results" width="640" height="480px" title="Local positions"/>
